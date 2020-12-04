@@ -11,10 +11,20 @@ class NumbersApi():
         'json': True
     }
 
-    def __init__(self, fragment: bool = False, notfound: NumbersApiNotFound = None, default: str = None) -> None:
+    def __init__(self, fragment: bool = False, notfound: NumbersApiNotFound = None, default: str = None, min: int = None, max: int = None) -> None:
         if fragment:
             self.options.setdefault('fragment', True)
-        
+
+        if min is not None:
+            if not isinstance(min, int):
+                raise OptionNotSupported()
+            self.options.setdefault('min', min)
+
+        if max is not None:
+            if not isinstance(max, int):
+                raise OptionNotSupported()
+            self.options.setdefault('max', max)
+
         if default:
             self.options.setdefault('default', default)
 
