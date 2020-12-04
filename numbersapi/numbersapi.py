@@ -39,9 +39,11 @@ class NumbersApi():
         return BaseResponse(**result)
 
     def date(self, month: int = None, day: int = None) -> DateResponse:
-        if month is None or day is None:
+        if month is None and day is None:
             date = 'random'
-        elif month > 12 or day > 31:
+        elif not isinstance(month, int) or not isinstance(day, int):
+            raise WrongNumber()
+        elif int(month) > 12 or int(day) > 31:
             raise WrongNumber()
         else:
             date = "{0}/{1}".format(month, day)
