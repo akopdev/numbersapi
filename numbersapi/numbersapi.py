@@ -1,17 +1,37 @@
 from typing import Any, Dict
 import requests
-from .responses import BaseResponse, DateResponse, NumbersApiType
-from .exceptions import ServiceResponseError, WrongNumber
+from .responses import BaseResponse, DateResponse
+from .enums import NumbersApiType, NumbersApiNotFound
+from .exceptions import ServiceResponseError, WrongNumber, OptionNotSupported
 
 
 class NumbersApi():
-    def __init__(self) -> None:
-        pass
+
+    options = {
+        'json': True
+    }
+
+    def __init__(self, fragment: bool = False, notfound: NumbersApiNotFound = None, default: str = None) -> None:
+        if fragment:
+            self.options.setdefault('fragment', True)
+        
+        if default:
+            self.options.setdefault('default', default)
+
+        if notfound:
+            try:
+                nf = NumbersApiNotFound(notfound)
+            except ValueError:
+                raise OptionNotSupported()
+            else:
+                self.options.setdefault('notfound', nf)
+
+
 
     def _request(self, number: str, type: NumbersApiType = NumbersApiType.TRIVIA) -> Dict[str, Any]:
         try:
             response = requests.get(
-                "http://numbersapi.com/{0}/{1}?json".format(number, type.value), timeout=30)
+                "http://numbersapi.com/{0}/{1}".format(number, type.value), params=self.options, timeout=30)
             response.raise_for_status()
             result = response.json()
         except requests.exceptions.HTTPError as error:

@@ -1,11 +1,5 @@
-from enum import Enum
 from .exceptions import ServiceResponseError
-
-class NumbersApiType(Enum):
-    TRIVIA = 'trivia'
-    MATH = 'math'
-    DATE = 'date'
-    YEAR = 'year'
+from .enums import NumbersApiType
 
 class BaseResponse():
     def __init__(self, text: str = None, number: int = None, found: bool = False, type: str = None):
