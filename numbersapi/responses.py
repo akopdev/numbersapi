@@ -1,4 +1,5 @@
 from enum import Enum
+from .exceptions import ServiceResponseError
 
 class NumbersApiType(Enum):
     TRIVIA = 'trivia'
@@ -6,17 +7,18 @@ class NumbersApiType(Enum):
     DATE = 'date'
     YEAR = 'year'
 
-
-
 class BaseResponse():
     def __init__(self, text: str = None, number: int = None, found: bool = False, type: str = None):
+        if not text:
+            raise ServiceResponseError("Empty text response")
+        
         self.text = str(text)
         self.number = int(number)
         self.found = bool(found)
         try:
             self.type = NumbersApiType(type)
         except ValueError:
-            raise Exception("Wrong type")
+            raise ServiceResponseError("Not supported type")
         
 
 class DateResponse(BaseResponse):

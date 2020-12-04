@@ -1,37 +1,58 @@
 from typing import Any, Dict
 import requests
-from .responses import BaseResponse, DateResponse
+from .responses import BaseResponse, DateResponse, NumbersApiType
+from .exceptions import ServiceResponseError, WrongNumber
 
 
 class NumbersApi():
     def __init__(self) -> None:
         pass
 
-    def _request(self, number: str, type: str = 'trivia') -> Dict[str, Any]:
+    def _request(self, number: str, type: NumbersApiType = NumbersApiType.TRIVIA) -> Dict[str, Any]:
         try:
             response = requests.get(
-                "http://numbersapi.com/{0}/{1}?json".format(number, type), timeout=30)
+                "http://numbersapi.com/{0}/{1}?json".format(number, type.value), timeout=30)
             response.raise_for_status()
             result = response.json()
         except requests.exceptions.HTTPError as error:
-            raise Exception(error)
+            raise ServiceResponseError(error)
         except Exception as error:
-            raise Exception(error)
+            raise ServiceResponseError(error)
         return result
 
     def trivia(self, number: int = None) -> BaseResponse:
-        result = self._request(number)
+        if number is None:
+            number = 'random'
+        elif not isinstance(number, int):
+            raise WrongNumber()
+
+        result = self._request(number, type=NumbersApiType.TRIVIA)
         return BaseResponse(**result)
 
     def math(self, number: int = None) -> BaseResponse:
-        result = self._request(number, type='math')
+        if number is None:
+            number = 'random'
+        elif not isinstance(number, int):
+            raise WrongNumber()
+
+        result = self._request(number, type=NumbersApiType.MATH)
         return BaseResponse(**result)
 
     def date(self, month: int = None, day: int = None) -> DateResponse:
-        date = "{0}/{1}".format(month, day)
-        result = self._request(date, type='date')
+        if month is None or day is None:
+            date = 'random'
+        elif month > 12 or day > 31:
+            raise WrongNumber()
+        else:
+            date = "{0}/{1}".format(month, day)
+
+        result = self._request(date, type=NumbersApiType.DATE)
         return DateResponse(**result)
 
     def year(self, number: int = None) -> BaseResponse:
-        result = self._request(number, type='year')
+        if number is None:
+            number = 'random'
+        elif not isinstance(number, int):
+            raise WrongNumber()
+        result = self._request(number, type=NumbersApiType.YEAR)
         return BaseResponse(**result)
