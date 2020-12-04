@@ -34,7 +34,7 @@ class NumbersApi():
             except ValueError:
                 raise OptionNotSupported()
             else:
-                self.options.setdefault('notfound', nf)
+                self.options.setdefault('notfound', nf.value)
 
 
 

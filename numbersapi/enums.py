@@ -1,7 +1,6 @@
 from enum import Enum
 
 class NumbersApiNotFound(Enum):
-    DEFAULT = 'default'
     FLOOR = 'floor'
     CEIL = 'ceil'
 
